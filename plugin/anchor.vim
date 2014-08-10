@@ -1,12 +1,15 @@
-function! s:DetermineProtocol(value)
-	let protocol = matchstr(a:value, '\(ftp\|https\|ftps\)')
-
-	" echom protocol
-	" echom a:value
+function! s:DetermineProtocol(mode)
+	if(a:mode ==# 'v')
+		execute "normal! `<v`>x"
+	else
+		execute "normal! diW"
+	endif
+	let address = @"
+	let protocol = matchstr(address, '\(:\/\/\)')
 
 	if empty(protocol)
-		echom match(a:value, '@')
-		if(match(a:value, '@') > 1)
+		echom match(address, '@')
+		if(match(address, '@') > 1)
 			return "mailto:"
 		else
 			return "http://"
@@ -17,31 +20,29 @@ function! s:DetermineProtocol(value)
 endfunction
 
 function! s:CreateVisualAnchor(change_value)
+	let protocol = s:DetermineProtocol('v')
 	if a:change_value == 1
-		echom "yes"
-		execute "normal `<v`>xa<a href=\"http://\<esc>pa\">\<esc>pa</a>\<esc>1T>vt<"
+		execute "normal! i<a href=\"" . protocol ."\<esc>pa\">\<esc>pa</a>\<esc>1T>vt<"
 	else
-		echom "no"
-		execute "normal `<v`>xa<a href=\"http://\<esc>pa\">\<esc>pa</a>\<esc>2F<v2f>"
+		execute "normal! i<a href=\"" . protocol ."\<esc>pa\">\<esc>pa</a>\<esc>2F<v2f>"
 	endif
 endfunction
 
 function! s:CreateInsertAnchor(change_value)
+	let protocol = s:DetermineProtocol('i')
 	if a:change_value == 1
-		execute "normal! diWi<a href=\"http://\<esc>pa\">\<esc>pa</a> \<esc>2T>vt<"
+		execute "normal! i<a href=\"" . protocol . "\<esc>pa\">\<esc>pa</a> \<esc>2T>vt<"
 	else
-		execute "normal! diWi<a href=\"http://\<esc>pa\">\<esc>pa</a> \<esc>"
+		execute "normal! i<a href=\"" . protocol . "\<esc>pa\">\<esc>pa</a> \<esc>"
 	endif
 endfunction
 
 function! s:CreateNormalAnchor(change_value)
-	execute "normal! diW"
-	let value = @"
-	let protocol = s:DetermineProtocol(value)
+	let protocol = s:DetermineProtocol('n')
 	if a:change_value == 1
-		execute "normal! i<a href=\"".protocol."\<esc>pa\">\<esc>pa</a> \<esc>2T>vt<"
+		execute "normal! i<a href=\"" . protocol . "\<esc>pa\">\<esc>pa</a> \<esc>2T>vt<"
 	else
-		execute "normal! i<a href=\"".protocol."\<esc>pa\">\<esc>pa</a> \<esc>"
+		execute "normal! i<a href=\"" . protocol . "\<esc>pa\">\<esc>pa</a> \<esc>"
 	endif
 endfunction
 
