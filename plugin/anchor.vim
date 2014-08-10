@@ -1,3 +1,21 @@
+function! s:DetermineProtocol(value)
+	let protocol = matchstr(a:value, '\(ftp\|https\|ftps\)')
+
+	" echom protocol
+	" echom a:value
+
+	if empty(protocol)
+		echom match(a:value, '@')
+		if(match(a:value, '@') > 1)
+			return "mailto:"
+		else
+			return "http://"
+		endif
+	else
+		return ""
+	endif
+endfunction
+
 function! s:CreateVisualAnchor(change_value)
 	if a:change_value == 1
 		echom "yes"
@@ -17,12 +35,16 @@ function! s:CreateInsertAnchor(change_value)
 endfunction
 
 function! s:CreateNormalAnchor(change_value)
+	execute "normal! diW"
+	let value = @"
+	let protocol = s:DetermineProtocol(value)
 	if a:change_value == 1
-		execute "normal! diWi<a href=\"http://\<esc>pa\">\<esc>pa</a> \<esc>2T>vt<"
+		execute "normal! i<a href=\"".protocol."\<esc>pa\">\<esc>pa</a> \<esc>2T>vt<"
 	else
-		execute "normal! diWi<a href=\"http://\<esc>pa\">\<esc>pa</a> \<esc>"
+		execute "normal! i<a href=\"".protocol."\<esc>pa\">\<esc>pa</a> \<esc>"
 	endif
 endfunction
+
 
 function! s:CreateAnchor(mode, ...)
 	let s:current_yank = @"
